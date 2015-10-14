@@ -37,9 +37,9 @@ using namespace browser::chartplot ;
 
 
 
-void drawtext(QPainter &painter, float x, float y, const QString &text,
-/*===================================================================*/
-              bool mapX, bool mapY, int align, float fontSize, int fontWeight)
+void browser::chartplot::drawtext(QPainter &painter, float x, float y, const QString &text,
+/*=======================================================================================*/
+                                  bool mapX, bool mapY, int align, float fontSize, int fontWeight)
 {
   if (text == "") return ;
   QStringList lines = text.split('\n') ;
@@ -90,15 +90,13 @@ SignalTrace::SignalTrace(const QString &label, const QString &units,
                          const bsml::data::TimeSeries::Reference &data, float ymin, float ymax)
 : Trace()
 {
-  m_label = "%s\n(%s)" % (label, units) if units else label ; // TODO
+  m_label = (units == "") ? label : QString("%1\n%2").arg(label, units) ;
   m_selected = false ;
   m_range = nrange::NumericRange() ;
-
   m_ymin = ymin ;
   m_ymax = ymax ;
   m_polygon = QPolygonF() ;
   m_path = QPainterPath() ;
-
   if (data != nullptr) appendData(data, ymin, ymax) ;
   else                 setYrange() ;
   }
@@ -196,7 +194,7 @@ void SignalTrace::drawTrace(QPainter &painter, float start, float end, int label
                             const QVector<float> &markers)
 {
 
-  if m_path is None: return ;  // TODO
+  if (m_path.isEmpty()) return ;
   painter.scale(1.0, 1.0/(m_range_ymax - m_range_ymin)) ;
   painter.translate(0.0, -m_range_ymin) ;
   // draw and label y-gridlines.
@@ -438,19 +436,15 @@ void ChartPlot::moveTrace(const QString &from, const QString &to)
   int n = m_traces.value(from, -1) ;
   int m = m_traces.value(to, -1) ;
   if (n >= 0 && m >= 0 && n != m) {
-    TraceInfo p = m_tracelist[n] ;
+    m_tracelist.move(n, m) ;
     if (n > m) {   // shift up
-// TODO
-      m_tracelist[m+1:n+1] = m_tracelist[m:n] ;
-      for i in xrange(m+1, n+1): m_traces[m_tracelist[i][0]] = i ;
+      for (auto i = m ; i <= n ; ++i)
+        m_traces[std::get<0>(m_tracelist[i])] = i ;
       }
-    else {       // shift down
-// TODO
-      m_tracelist[n:m] = m_tracelist[n+1:m+1] ;
-      for i in xrange(n, m): m_traces[m_tracelist[i][0]] = i ;
+    else {         // shift down
+      for (auto i = n ; i <= m ; ++i)
+        m_traces[std::get<0>(m_tracelist[i])] = i ;
       }
-    m_tracelist[m] = p ;
-    m_traces[from] = m ;
     }
   update() ;
   }
@@ -460,7 +454,7 @@ void ChartPlot::plotSelected(const int &row)
 {
   int n = 0 ;
   for (auto const &p : m_tracelist) {
-    std::get<2>(p)->setSelected((n == row)) ;
+    std::get<2>(p)->select((n == row)) ;
     n += 1 ;
     }
   update() ;
@@ -711,10 +705,16 @@ void ChartPlot::showAnnotations(QPainter &painter)
   int nextcolour = 0 ;
   QHash<QString, int> colourdict ;  // key by text, to use the same colour for the same text
 
-  QList<QPair<AnnInfo, QString>> sorted ;
+  typedef QPair<AnnInfo, QString> AnnSort ;
+  QList<AnnSort> sorted ;
   for (auto const &id : m_annotations.keys())
     sorted.append(QPair<AnnInfo, QString>(m_annotations[id], id)) ;
-  std::sort(sorted.begin(), sorted.end()) ;  // In start time order...
+  auto compare = [] (const AnnSort &s1, const AnnSort &s2)
+    { return std::get<0>(s1.first) < std::get<0>(s2.first)
+         || (std::get<0>(s1.first) == std::get<0>(s2.first)
+          && std::get<1>(s1.first) < std::get<1>(s2.first)) ;
+    } ;
+  std::sort(sorted.begin(), sorted.end(), compare) ;  // In start time order...
 
   for (auto const &annid : sorted) {
     AnnInfo ann = annid.first ;
@@ -1039,7 +1039,7 @@ void ChartPlot::contextMenuEvent(QContextMenuEvent *event)
           if (item->text() == "Edit") {
             AnnotationDialog dialog(this, m_id, std::get<0>(ann), std::get<1>(ann), std::get<2>(ann), std::get<3>(ann)) ;
             if (dialog.exec() == QDialog::Accepted) {
-              QString text = str(dialog.get_annotation()).trimmed() ;
+              QString text = dialog.get_annotation().trimmed() ;
               QStringList tags = dialog.get_tags() ;
               if ((text != "" && text != std::get<2>(ann).trimmed())
                 || tags != std::get<3>(ann)) emit annotationModified(ann_id, text, tags) ;
@@ -1120,7 +1120,6 @@ void ChartPlot::contextMenuEvent(QContextMenuEvent *event)
       }
     }
   }
-
 
 
 #ifdef TESTING

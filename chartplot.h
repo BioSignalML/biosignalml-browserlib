@@ -94,6 +94,7 @@ namespace browser {
 
     typedef QList<QPair<QRect, QString>> AnnRectList ; // List of tuple(rect, id)
 
+
     static void drawtext(QPainter &painter, float x, float y, const QString &text,
                          bool mapX=true, bool mapY=true, int align=alignCentred,
                          float fontSize=0.0, int fontWeight=0) ;
@@ -106,7 +107,8 @@ namespace browser {
       Trace() = default ;
       virtual ~Trace() = default ;
 
-      const QString &label(void) const { return m_label ; }
+      inline const QString &label(void) const { return m_label ; }
+      inline void select(bool selected) { m_selected = selected ; }
 
       /* The height, in pixels, of a trace on its grid. */
       virtual int gridheight(void) const = 0 ;

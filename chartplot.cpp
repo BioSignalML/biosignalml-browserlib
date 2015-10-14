@@ -20,6 +20,8 @@
 
 #include "chartplot.h"
 
+#include "annotationdialog.h"
+
 #include <QMenu>
 #include <QDialog>
 #include <QToolTip>

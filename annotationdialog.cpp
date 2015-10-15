@@ -51,7 +51,7 @@ AnnotationDialog::AnnotationDialog(ChartPlot *parent, const QString &id, float s
     }
   setWindowTitle(title) ;
 
-  m_ui.description->setText(QString("Annotate %1 to %2 seconds").arg(start, end)) ;
+  m_ui.description->setText(QString("Annotate %1 to %2 seconds").arg(start).arg(end)) ;
   m_ui.annotation->setPlainText(text) ;
   m_ui.taglist->setSelectionMode(QAbstractItemView::ExtendedSelection) ;
 
@@ -67,7 +67,7 @@ AnnotationDialog::AnnotationDialog(ChartPlot *parent, const QString &id, float s
     if (tags.contains(dynamic_cast<TagItem *>(t)->uri())) t->setSelected(true) ;
     }
   m_ui.taglist->hide() ;
-  QObject::connect(m_ui.tags, SIGNAL(clicked), this, SLOT(show_tags)) ;
+  QObject::connect(m_ui.tags, SIGNAL(clicked()), this, SLOT(show_tags())) ;
   QStringList tagnames ;
   for (auto const &t : tags)
     tagnames.append(semantic_tags.value(t, t)) ;

@@ -50,6 +50,10 @@ int main(int argc, char *argv[])
   chart.setTimeRange(0.0, points) ;
   chart.appendData("1", sindata) ;
   chart.appendData("2", cosdata) ;
+
+  chart.addAnnotation("ann1", 250, 750, "the big middle bit...", QStringList(), true) ;
+  chart.addAnnotation("ann2", 450, 550, "the little middle bit...", QStringList{"tag1", "tag2"}, true) ;
+
   chart.show() ;
 
   return app.exec() ;

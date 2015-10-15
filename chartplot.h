@@ -243,7 +243,7 @@ namespace browser {
     void plotSelected(const int &row) ;
     void resetAnnotations(void) ;
     void addAnnotation(const QString &id, float start, float end, const QString &text,
-                       const QStringList &tags, bool edit=false) ;
+                       const QStringList &tags=QStringList(), bool edit=false) ;
     void deleteAnnotation(const QString &id) ;
     void setTimeRange(float start, float duration) ;
     void setTimeZoom(float scale) ;

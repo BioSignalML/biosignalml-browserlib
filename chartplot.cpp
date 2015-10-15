@@ -1122,30 +1122,3 @@ void ChartPlot::contextMenuEvent(QContextMenuEvent *event)
       }
     }
   }
-
-
-#ifdef TESTING
-
-int main(int argc, char *argv[])
-/*============================*/
-{
-
-  QApplication app(argc, argv) ;
-
-  ChartPlot chart ;
-  chart.addSignalTrace("1", "label", "units") ;
-
-  int points = 1000 ;
-  tsdata = np.fromfunction(lambda x: np.sin(2.0*np.pi*x/points), (points+1,)) ;
-  print(tsdata) ;
-  
-  data = DataSegment(0.0, UniformTimeSeries(tsdata, rate=1)) ;
-  
-  chart.setTimeRange(0.0, points) ;
-  chart.appendData("1", data) ;
-  chart.show() ;
-
-  sys.exit(app.exec()) ;
-  }
-
-#endif

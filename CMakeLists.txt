@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.1)
 
 project(browser)
 
+FIND_PACKAGE(biosignalml REQUIRED)
+#set(INCLUDES ${biosignalml_INCLUDE_DIR})
+set(LIBRARIES ${biosignalml_LIBRARY})
+
+FIND_PACKAGE(typedobject REQUIRED)
+#set(INCLUDES ${typedobject_INCLUDE_DIR})
+set(LIBRARIES ${LIBRARIES} ${typedobject_LIBRARY})
 
 if(UNIX)
   add_definitions(-std=c++11)  # Use C++11
@@ -32,3 +39,5 @@ set(SOURCES
 add_executable(browser ${SOURCES})
 qt5_use_modules(browser Widgets Gui)
 
+message("LIBS: ${LIBRARIES}")
+target_link_libraries(browser ${LIBRARIES})

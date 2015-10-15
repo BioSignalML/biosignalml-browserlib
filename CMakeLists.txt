@@ -9,6 +9,8 @@ endif()
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
+# Tell CMake to run uic when necessary:
+set(CMAKE_AUTOUIC ON)
 
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
@@ -20,7 +22,13 @@ find_package(Qt5Gui     REQUIRED)
 
 
 
-add_executable(browser nrange.cpp browser.cpp chartplot.cpp)
+set(SOURCES
+  nrange.cpp
+  annotationdialog.cpp
+  chartplot.cpp
+  browser.cpp 
+  )
 
+add_executable(browser ${SOURCES})
 qt5_use_modules(browser Widgets Gui)
 

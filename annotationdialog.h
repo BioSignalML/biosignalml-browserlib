@@ -21,28 +21,47 @@
 #ifndef BROWSER_ANNOTATIONDIALOG_H
 #define BROWSER_ANNOTATIONDIALOG_H
 
+#include "ui_annotationdialog.h"
+#include "chartplot.h"
+
 #include <QDialog>
 #include <QListWidgetItem>
 
-class TagItem : public QListWidgetItem
-/*==================================*/
-{
- public:
-  TagItem(const QString &uri, const QString &label) ;
-  } ;
+
+namespace browser {
+
+  class TagItem : public QListWidgetItem
+  /*==================================*/
+  {
+   public:
+    TagItem(const QString &uri, const QString &label) ;
+
+    inline const QString &uri(void) const { return m_uri ; }
+    inline const QString &label(void) const { return m_label ; }
+
+   private:
+    QString m_uri ;
+    QString m_label ;
+    } ;
 
 
-class AnnotationDialog : public QDialog
-/*===================================*/
-{
- public:
-  AnnotationDialog(QWidget *parent, const QString &id, float start, float end,
-                   const QString &text="", const QStringList &tags=QStringList()) ;
-  QString get_annotation(void) const ;
-  QStringList get_tags(void) const ;
+  class AnnotationDialog : public QDialog
+  /*===================================*/
+  {
+   public:
+    AnnotationDialog(ChartPlot *parent, const QString &id, float start, float end,
+                     const QString &text="", const QStringList &tags=QStringList()) ;
+    QString get_annotation(void) const ;
+    QStringList get_tags(void) const ;
 
- public slots:
-  void show_tags(void) ;
+   public slots:
+    void show_tags(void) ;
+
+   private:
+    Ui_AnnotationDialog m_ui ;
+    bool m_tagsvisible ;
+    } ;
+
   } ;
 
 #endif

@@ -353,6 +353,11 @@ void ChartPlot::setSemanticTags(const TagDict &tags)
   m_semantictags = tags ;
   }
 
+const TagDict &ChartPlot::semanticTags(void) const
+/*----------------------------------------------*/
+{
+  return m_semantictags ;
+  }
 
 void ChartPlot::addTrace(const QString &id, bool visible, const std::shared_ptr<Trace> &trace)
 /*------------------------------------------------------------------------------------------*/
@@ -1039,7 +1044,7 @@ void ChartPlot::contextMenuEvent(QContextMenuEvent *event)
           if (item->text() == "Edit") {
             AnnotationDialog dialog(this, m_id, std::get<0>(ann), std::get<1>(ann), std::get<2>(ann), std::get<3>(ann)) ;
             if (dialog.exec() == QDialog::Accepted) {
-              QString text = dialog.get_annotation().trimmed() ;
+              QString text = dialog.get_annotation() ;
               QStringList tags = dialog.get_tags() ;
               if ((text != "" && text != std::get<2>(ann).trimmed())
                 || tags != std::get<3>(ann)) emit annotationModified(ann_id, text, tags) ;

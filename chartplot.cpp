@@ -782,8 +782,6 @@ void ChartPlot::showAnnotations(QPainter &painter)
       // pen.setWidth(ANN_LINE_WIDTH)
       // painter.setPen(pen)
       painter.fillRect(rect, colour) ;
-      rect = QRect(left, ann_top - ANN_LINE_WIDTH,    // Untransformed
-                   width, ANN_LINE_WIDTH) ;           // for contains(pos)
       m_annrects.append(QPair<QRect, QString>(rect, id)) ;
       }
     }

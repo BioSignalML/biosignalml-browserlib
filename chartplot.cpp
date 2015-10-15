@@ -877,20 +877,19 @@ void ChartPlot::mousePressEvent(QMouseEvent *event)
   // check right click etc...
 
   PosnTime marker(-1, 0.0) ;
-
   if (pos.y() <= MARGIN_TOP) {
-
     QList<QPair<int, int>> mpos ;
     int n = 0 ;
-    for (auto const &m : m_markers)
+    for (auto const &m : m_markers) {
       mpos.append(QPair<int, int>(m.first, n)) ;
-    std::sort(mpos.begin(), mpos.end()) ;
-
-    if (xpos <= mpos[0].first) {
-      m_marker = mpos[0].second ;
+      n += 1 ;
       }
-    else if (xpos >= mpos[-1].first) {
-      m_marker = mpos[-1].second ;
+    std::sort(mpos.begin(), mpos.end()) ;
+    if (xpos <= mpos.first().first) {
+      m_marker = mpos.first().second ;
+      }
+    else if (xpos >= mpos.last().first) {
+      m_marker = mpos.last().second ;
       }
     else {
       n = 0 ;
@@ -913,7 +912,7 @@ void ChartPlot::mousePressEvent(QMouseEvent *event)
   else {
     int n = 0 ;
     for (auto const &m : m_markers) {
-      if ((xpos-2) <= m.first <= (xpos+2)) {
+      if ((xpos-2) <= m.first && m.first <= (xpos+2)) {
         m_marker = n ;
         marker = m ;
         break ;
@@ -921,11 +920,10 @@ void ChartPlot::mousePressEvent(QMouseEvent *event)
       n += 1 ;
       }
     }
-
   if (marker.first >= 0) {
-    marker = PosnTime(xpos, xtime) ;
+    m_markers[m_marker] = PosnTime(xpos, xtime) ;
     }
-  else if (MARGIN_TOP < pos.y() <= (MARGIN_TOP + m_plotheight)) {
+  else if (MARGIN_TOP < pos.y() && pos.y() <= (MARGIN_TOP + m_plotheight)) {
     //# Need to be able to clear selection (click inside??)
     //# and start selecting another region (drag outside of region ??)
     if (isnan(m_selectstart.second)) {

@@ -48,6 +48,7 @@ namespace browser {
   class AnnotationDialog : public QDialog
   /*===================================*/
   {
+    Q_OBJECT
    public:
     AnnotationDialog(ChartPlot *parent, const QString &id, float start, float end,
                      const QString &text="", const QStringList &tags=QStringList()) ;

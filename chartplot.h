@@ -196,6 +196,7 @@ namespace browser {
   class ChartPlot : public QWidget
   /*============================*/
   {
+    Q_OBJECT
    public:
     ChartPlot(QWidget *parent=nullptr) ;
 

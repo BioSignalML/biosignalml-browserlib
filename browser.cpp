@@ -31,20 +31,25 @@ using namespace browser ;
 int main(int argc, char *argv[])
 /*============================*/
 {
-
   QApplication app(argc, argv) ;
 
   ChartPlot chart ;
-  chart.addSignalTrace("1", "label", "units") ;
+  chart.addSignalTrace("1", "Sine wave", "units 1") ;
+  chart.addSignalTrace("2", "Cosine",    "units 2") ;
 
   int points = 1000 ;
-  std::vector<double> tsdata(points+1) ;
-  for (int n = 0 ;  n <= points ;  ++n)
-    tsdata[n] = std::sin(2.0*M_PI*n/(double)points) ;
+  std::vector<double> sine(points+1) ;
+  std::vector<double> cosine(points+1) ;
+  for (int n = 0 ;  n <= points ;  ++n) {
+    sine[n] = std::sin(2.0*M_PI*n/(double)points) ;
+    cosine[n] = std::cos(2.0*M_PI*n/(double)points) ;
+    }
 //  print(tsdata) ;
-  auto data = std::make_shared<bsml::data::UniformTimeSeries>(1, tsdata) ;
+  auto sindata = std::make_shared<bsml::data::UniformTimeSeries>(1, sine) ;
+  auto cosdata = std::make_shared<bsml::data::UniformTimeSeries>(1, cosine) ;
   chart.setTimeRange(0.0, points) ;
-  chart.appendData("1", data) ;
+  chart.appendData("1", sindata) ;
+  chart.appendData("2", cosdata) ;
   chart.show() ;
 
   return app.exec() ;

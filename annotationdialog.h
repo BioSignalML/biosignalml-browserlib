@@ -52,6 +52,7 @@ namespace browser {
    public:
     AnnotationDialog(ChartPlot *parent, const QString &id, float start, float end,
                      const QString &text="", const QStringList &tags=QStringList()) ;
+    virtual ~AnnotationDialog() ;
     QString get_annotation(void) const ;
     QStringList get_tags(void) const ;
 
@@ -59,8 +60,11 @@ namespace browser {
     void show_tags(void) ;
 
    private:
+    void add_tagitem(const QString &uri, const QString &label) ;
+
     Ui_AnnotationDialog m_ui ;
     bool m_tagsvisible ;
+    QList<TagItem *> m_tagitems ;
     } ;
 
   } ;

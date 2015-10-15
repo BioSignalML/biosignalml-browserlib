@@ -34,7 +34,10 @@ TagItem::TagItem(const QString &uri, const QString &label)
 AnnotationDialog::AnnotationDialog(ChartPlot *parent, const QString &id, float start, float end,
 /*--------------------------------------------------------------------------------------------*/
                                    const QString &text, const QStringList &tags)
-: QDialog(parent), m_ui(Ui_AnnotationDialog()), m_tagsvisible(false)
+: QDialog(parent),
+  m_ui(Ui_AnnotationDialog()),
+  m_tagsvisible(false),
+  m_tagitems(QList<TagItem *>())
 {
   m_ui.setupUi(this) ;
 
@@ -54,11 +57,9 @@ AnnotationDialog::AnnotationDialog(ChartPlot *parent, const QString &id, float s
 
   const TagDict &semantic_tags = parent->semanticTags() ;  // { uri: label }
   for (auto const &u : semantic_tags.keys())
-    m_ui.taglist->addItem(new /****/ TagItem(u, semantic_tags.value(u))) ;
-  for (auto const &t : tags) {   // Show 'unknown' tags
-    if (!semantic_tags.contains(t))
-      m_ui.taglist->addItem(new /***/ TagItem(t, t)) ;
-    }
+    add_tagitem(u, semantic_tags.value(u)) ;
+  for (auto const &t : tags)     // Show 'unknown' tags
+    if (!semantic_tags.contains(t)) add_tagitem(t, t) ;
   m_ui.taglist->sortItems() ;
   // Setting selected when items are added doesn't work (because of sort??)
   for (int n = 0 ;  n < m_ui.taglist->count() ;  ++n) {
@@ -72,6 +73,12 @@ AnnotationDialog::AnnotationDialog(ChartPlot *parent, const QString &id, float s
     tagnames.append(semantic_tags.value(t, t)) ;
   std::sort(tagnames.begin(), tagnames.end()) ;
   m_ui.taglabels->setText(tagnames.join(", ")) ;
+  }
+
+AnnotationDialog::~AnnotationDialog()
+/*---------------------------------*/
+{
+  for (auto const &t : m_tagitems) delete t ;
   }
 
 QString AnnotationDialog::get_annotation(void) const
@@ -99,4 +106,12 @@ QStringList AnnotationDialog::get_tags(void) const
   for (auto const &t : m_ui.taglist->selectedItems())
     tags.append(dynamic_cast<TagItem *>(t)->uri()) ;
   return tags ;
+  }
+
+void AnnotationDialog::add_tagitem(const QString &uri, const QString &label)
+/*------------------------------------------------------------------------*/
+{
+  TagItem *item = new TagItem(uri, label) ;
+  m_ui.taglist->addItem(item) ;
+  m_tagitems.append(item) ;
   }

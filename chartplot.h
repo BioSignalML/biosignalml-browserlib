@@ -114,7 +114,8 @@ namespace browser {
     virtual QString yPosition(float timepos) const { return "" ; }
 
     /** Add data to a trace. */
-    virtual void appendData(const bsml::data::TimeSeries::Reference &data, float ymin=NAN, float ymax=NAN) = 0 ;
+    virtual void appendData(const bsml::data::TimeSeries::Reference &data,
+                            float ymin=NAN, float ymax=NAN) = 0 ;
 
     /** Draw the trace.
      *
@@ -125,8 +126,8 @@ namespace browser {
      * The painter has been scaled so that (0.0, 1.0) is the
      * vertical plotting height.
      */
-    virtual void drawTrace(QPainter &painter, float start, float end,
-                           int labelfreq, const QVector<float> &markers) = 0 ;
+    virtual void drawTrace(QPainter &painter, float start, float end, int labelfreq,
+                           const QVector<float> &markers) = 0 ;
 
    protected:
     QString m_label ;
@@ -143,9 +144,11 @@ namespace browser {
                 const bsml::data::TimeSeries::Reference &data=nullptr,
                 float ymin=NAN, float ymax=NAN) ;
 
-    int gridheight(void) const ;
-    void appendData(const bsml::data::TimeSeries::Reference &data, float ymin=NAN, float ymax=NAN) ;
-    void drawTrace(QPainter &painter, float start, float end, int labelfreq, const QVector<float> &markers) ;
+    int gridheight(void) const override ;
+    void appendData(const bsml::data::TimeSeries::Reference &data,
+                    float ymin=NAN, float ymax=NAN) override ;
+    void drawTrace(QPainter &painter, float start, float end, int labelfreq,
+                   const QVector<float> &markers) override ;
 
    private:
     /** Find the y-value corresponding to a time. */
@@ -172,10 +175,12 @@ namespace browser {
       const EventMap &mapping=[](float x) { return QString("%1").arg(x) ; },
       const bsml::data::TimeSeries::Reference &data=nullptr) ;
 
-    int gridheight(void) const ;
-    QString yPosition(float timepos) const ;
-    void appendData(const bsml::data::TimeSeries::Reference &data, float ymin=NAN, float ymax=NAN) ;
-    void drawTrace(QPainter &painter, float start, float end, int labelfreq, const QVector<float> &markers) ;
+    int gridheight(void) const override ;
+    QString yPosition(float timepos) const override ;
+    void appendData(const bsml::data::TimeSeries::Reference &data,
+                    float ymin=NAN, float ymax=NAN) override ;
+    void drawTrace(QPainter &painter, float start, float end, int labelfreq,
+                   const QVector<float> &markers) override ;
 
    private:
     EventMap m_mapping ;             //!< Event code --> text

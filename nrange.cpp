@@ -22,7 +22,7 @@
 
 #include <cmath>
 
-using namespace browser::nrange ;
+using namespace browser ;
 
 
 NumericRange::NumericRange(double start, double end)

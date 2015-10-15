@@ -33,13 +33,10 @@
 
 using namespace browser ;
 
-using namespace browser::chartplot ;
 
-
-
-void browser::chartplot::drawtext(QPainter &painter, float x, float y, const QString &text,
-/*=======================================================================================*/
-                                  bool mapX, bool mapY, int align, float fontSize, int fontWeight)
+void browser::drawtext(QPainter &painter, float x, float y, const QString &text,
+/*============================================================================*/
+                       bool mapX, bool mapY, int align, float fontSize, int fontWeight)
 {
   if (text == "") return ;
   QStringList lines = text.split('\n') ;
@@ -92,7 +89,7 @@ SignalTrace::SignalTrace(const QString &label, const QString &units,
 {
   m_label = (units == "") ? label : QString("%1\n%2").arg(label, units) ;
   m_selected = false ;
-  m_range = nrange::NumericRange() ;
+  m_range = NumericRange() ;
   m_ymin = ymin ;
   m_ymax = ymax ;
   m_polygon = QPolygonF() ;
@@ -119,7 +116,7 @@ void SignalTrace::setYrange(void)          // sets y values from _y ones...
     ymin = m_ymin ;
     ymax = m_ymax ;
     }
-  m_range = nrange::NumericRange(ymin, ymax) ;
+  m_range = NumericRange(ymin, ymax) ;
   m_range_ymin = m_range.start() ;
   m_range_ymax = m_range.end() ;
   }
@@ -663,7 +660,7 @@ void ChartPlot::draw_time_grid(QPainter &painter)
 void ChartPlot::setTimeGrid(float start, float end)
 /*-----------------------------------------------*/
 {
-  m_timerange = nrange::NumericRange(start, end) ;
+  m_timerange = NumericRange(start, end) ;
   m_windowstart = start ;
   m_windowend = end ;
   }

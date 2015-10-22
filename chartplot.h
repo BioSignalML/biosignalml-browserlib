@@ -21,6 +21,7 @@
 #ifndef BROWSER_CHARTPLOT_H
 #define BROWSER_CHARTPLOT_H
 
+#include "typedefs.h"
 #include "nrange.h"
 
 #include <biosignalml/data/data.h>
@@ -72,25 +73,6 @@ namespace browser {
   static const int alignBottom  =  0x08 ;
   static const int alignMiddle  =  0x0C ;
   static const int alignCentred =  0x0F ;
-
-
-  class Trace ;
-
-  typedef std::function<QString (float)> EventMap ;
-  typedef QPair<float, QString> EventInfo ;
-  typedef std::tuple<float, float, QString> EventPosInfo ;
-
-  typedef QHash<QString, QString> TagDict ;  // { uri: label }
-
-  typedef std::tuple<QString, bool, std::shared_ptr<Trace>> TraceInfo ;
-  typedef QList<TraceInfo> TraceList ;
-
-  typedef QPair<int, float> PosnTime ;
-
-  typedef std::tuple<float, float, QString, QStringList, bool> AnnInfo ;
-  typedef QMap<QString, AnnInfo> AnnotationDict ;
-
-  typedef QList<QPair<QRect, QString>> AnnRectList ; // List of tuple(rect, id)
 
 
   static void drawtext(QPainter &painter, float x, float y, const QString &text,

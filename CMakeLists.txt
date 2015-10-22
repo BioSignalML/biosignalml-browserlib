@@ -32,6 +32,7 @@ find_package(Qt5Gui     REQUIRED)
 set(SOURCES
   nrange.cpp
   table.cpp
+  annotationlist.cpp
   annotationdialog.cpp
   chartplot.cpp
   browser.cpp 

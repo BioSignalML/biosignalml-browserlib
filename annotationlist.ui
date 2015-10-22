@@ -75,7 +75,7 @@
       </layout>
      </item>
      <item>
-      <widget class="TableView" name="annotations">
+      <widget class="browser::TableView" name="annotations" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -93,9 +93,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TableView</class>
-   <extends>QTableView</extends>
+   <class>browser::TableView</class>
+   <extends>QWidget</extends>
    <header>table.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

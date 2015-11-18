@@ -62,7 +62,7 @@ namespace browser {
   {
     Q_OBJECT
    public:
-    TableModel() ;
+    TableModel() = default ;
     TableModel(QObject *parent, const QStringList &header, const QStringList &rowids) ;
 
     int rowCount(const QModelIndex &parent=QModelIndex()) const ;
@@ -101,15 +101,14 @@ namespace browser {
   {
     Q_OBJECT
    public:
-    SortedTable(QObject *parent, TableView *view, TableModel::TableModel *table,
-                const QStringList &header, const QStringList &rowids) ;
+    SortedTable(QObject *parent, TableView *view, TableModel::TableModel *table) ;
 
     RowPosns appendRows(const QStringList &rowids) ;
     void removeRows(const RowPosns &posns) ;
     void deleteRow(const QString &key) ;
 
    private:
-    TableModel *m_table ;
+    TableModel *m_model ;
     } ;
 
   } ;

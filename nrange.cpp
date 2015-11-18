@@ -25,6 +25,13 @@
 using namespace browser ;
 
 
+NumericRange::NumericRange()
+/*------------------------*/
+: m_minor(0.1),
+  m_major(1.0)
+{
+  }
+
 NumericRange::NumericRange(double start, double end)
 /*------------------------------------------------*/
 {

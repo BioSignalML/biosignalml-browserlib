@@ -27,6 +27,7 @@
 #include <QToolTip>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QMessageLogger>
 
 #include <algorithm>
 
@@ -84,16 +85,16 @@ void browser::drawtext(QPainter &painter, float x, float y, const QString &text,
 
 SignalTrace::SignalTrace(const QString &label, const QString &units,
 /*----------------------------------------------------------------*/
-                         const bsml::data::TimeSeries::Reference &data, float ymin, float ymax)
-: Trace()
+                         const bsml::data::TimeSeries::Ptr &data, float ymin, float ymax)
+: Trace(),
+  m_range(NumericRange()),
+  m_ymin(ymin),
+  m_ymax(ymax),
+  m_polygon(QPolygonF()),
+  m_path(QPainterPath())
 {
   m_label = (units == "") ? label : QString("%1\n%2").arg(label, units) ;
   m_selected = false ;
-  m_range = NumericRange() ;
-  m_ymin = ymin ;
-  m_ymax = ymax ;
-  m_polygon = QPolygonF() ;
-  m_path = QPainterPath() ;
   if (data != nullptr) appendData(data, ymin, ymax) ;
   else                 setYrange() ;
   }
@@ -129,10 +130,16 @@ int SignalTrace::gridheight(void) const
   }
 
 
-void SignalTrace::appendData(const bsml::data::TimeSeries::Reference &data, float ymin, float ymax)
-/*------------------------------------------------------------------------------------------------*/
+void SignalTrace::appendData(const bsml::data::TimeSeries::Ptr &data, float ymin, float ymax)
+/*-----------------------------------------------------------------------------------------*/
 {
-  if (data == nullptr) return ;
+  if (data == nullptr) {    // Reset
+    m_ymin = NAN ;
+    m_ymax = NAN ;
+    m_polygon = QPolygonF() ;
+    m_path = QPainterPath() ;
+    return ;
+    }
 
   if (isnan(ymin)) ymin = *std::min_element(data->data().begin(), data->data().end()) ;
   if (isnan(ymax)) ymax = *std::max_element(data->data().begin(), data->data().end()) ;
@@ -237,13 +244,13 @@ void SignalTrace::drawTrace(QPainter &painter, float start, float end, int label
 
 EventTrace::EventTrace(const QString &label, const EventMap &mapping,
 /*-----------------------------------------------------------------*/
-                       const bsml::data::TimeSeries::Reference &data)
+                       const bsml::data::TimeSeries::Ptr &data)
+: m_mapping(mapping),
+  m_events(QList<EventInfo>()),
+  m_eventpos(QList<EventPosInfo>())
 {
   m_label = label ;
   m_selected = false ;
-  m_mapping = mapping ;
-  m_events = QList<EventInfo>() ;
-  m_eventpos = QList<EventPosInfo>() ;
   appendData(data) ;
   }
 
@@ -266,16 +273,21 @@ QString EventTrace::yPosition(float timepos) const
     else                                       j = m ;
     }
   timepos -= 3 ;
-  if ((timepos-3) <= std::get<0>(m_eventpos[i-1]) < (timepos+3))  // "close to"
+  float t = std::get<0>(m_eventpos[i-1]) ;
+  if ((timepos-3) <= t && t < (timepos+3))  // "close to"
     return std::get<2>(m_eventpos[i-1]) ;
   return "" ;
   }
 
-void EventTrace::appendData(const bsml::data::TimeSeries::Reference &data,
-/*----------------------------------------------------------------------*/
+void EventTrace::appendData(const bsml::data::TimeSeries::Ptr &data,
+/*----------------------------------------------------------------*/
                             float ymin, float ymax)      // But unused...
 {
-  if (data) {
+  if (data == nullptr) {  // reset
+    m_events = QList<EventInfo>() ;
+    m_eventpos = QList<EventPosInfo>() ;
+    }
+  else {
     // Make TimeSeries an iterator...
 //    for (auto const pt : data.points()) {  // ??????????
     for (auto n = 0 ;  n < data->size() ;  ++n) {
@@ -335,7 +347,7 @@ ChartPlot::ChartPlot(QWidget *parent)
   
   m_annotations = AnnotationDict() ;
   m_annrects = AnnRectList() ;
-  m_semantictags = TagDict() ;
+  m_semantictags = QStringDictionary() ;
   }
 
 void ChartPlot::setId(const QString &id)
@@ -344,14 +356,14 @@ void ChartPlot::setId(const QString &id)
   m_id = id ;
   }
 
-void ChartPlot::setSemanticTags(const TagDict &tags)
-/*------------------------------------------------*/
+void ChartPlot::setSemanticTags(const QStringDictionary &tags)
+/*----------------------------------------------------------*/
 {
   m_semantictags = tags ;
   }
 
-const TagDict &ChartPlot::semanticTags(void) const
-/*----------------------------------------------*/
+const QStringDictionary &ChartPlot::semanticTags(void) const
+/*--------------------------------------------------------*/
 {
   return m_semantictags ;
   }
@@ -366,23 +378,23 @@ void ChartPlot::addTrace(const QString &id, bool visible, const std::shared_ptr<
 
 void ChartPlot::addSignalTrace(const QString &id, const QString &label, const QString &units,
 /*-----------------------------------------------------------------------------------------*/
-                               bool visible, 
-                               const bsml::data::TimeSeries::Reference &data,
-                               float ymin, float ymax)
+                               bool visible)
+//TODO                               const bsml::data::TimeSeries::Ptr &data,
+//TODO                               float ymin, float ymax)
 {
-  addTrace(id, visible, std::make_shared<SignalTrace>(label, units, data, ymin, ymax)) ;
+  addTrace(id, visible, std::make_shared<SignalTrace>(label, units)) ;//TODO, data, ymin, ymax)) ;
   }
 
-void ChartPlot::addEventTrace(const QString &id, const QString &label,
-/*------------------------------------------------------------------*/
-                              const EventMap &mapping, bool visible,
-                              const bsml::data::TimeSeries::Reference &data)
+void ChartPlot::addEventTrace(const QString &id, const QString &label, bool visible)
+/*--------------------------------------------------------------------------------*/
+//TODO                              const EventMap &mapping,
+//TODO                              const bsml::data::TimeSeries::Ptr &data)
 {
-  addTrace(id, visible, std::make_shared<EventTrace>(label, mapping, data)) ;
+  addTrace(id, visible, std::make_shared<EventTrace>(label)) ;//TODO, mapping, data)) ;
   }
 
-void ChartPlot::appendData(const QString &id, const bsml::data::TimeSeries::Reference &data)
-/*----------------------------------------------------------------------------------------*/
+void ChartPlot::appendData(const QString &id, const bsml::data::TimeSeries::Ptr &data)
+/*----------------------------------------------------------------------------------*/
 {
   int n = m_traces.value(id, -1) ;
   if (n >= 0) {
@@ -493,6 +505,13 @@ void ChartPlot::resizeEvent(QResizeEvent *e)
                      width() - (MARGIN_LEFT + MARGIN_RIGHT),
                      pos().y() + height()) ;
   }
+
+
+//QSize ChartPlot::sizeHint(void) const
+//{
+//    return QSize(640, 480);
+//}
+
 
 void ChartPlot::paintEvent(QPaintEvent *e)
 /*--------------------------------------*/
@@ -637,14 +656,14 @@ void ChartPlot::draw_time_grid(QPainter &painter)
   painter.setPen(QPen(gridMinorColour, 0)) ;
   float t = m_timerange.start() ;
   while (t <= m_windowend) {
-    if (m_windowstart <= t <= m_windowend)
+    if (t >= m_windowstart)
       painter.drawLine(QPoint(time_to_pos(t), MARGIN_TOP),
                        QPoint(time_to_pos(t), ypos)) ;
     t += m_timerange.minor() ;
     }
   t = m_timerange.start() ;
   while (t <= m_windowend) {
-    if (m_windowstart <= t && t <= m_windowend) {
+    if (t >= m_windowstart) {
       painter.setPen(QPen(gridMajorColour, 0)) ;
       painter.drawLine(QPoint(time_to_pos(t), MARGIN_TOP),
                        QPoint(time_to_pos(t), ypos+5)) ;
@@ -726,10 +745,9 @@ void ChartPlot::showAnnotations(QPainter &painter)
 
     int n = 0 ;
     for (auto &e : endtimes) {
-      n += 1 ;
       if (std::get<0>(ann) > e.first) {      // Start time after last end on this row?
         row = n ;
-        e.first = std::get<1>(ann) ;        // Save end time
+        e.first = std::get<1>(ann) ;         // Save end time
         colours[0] = e.second ;
         if ((n + 1) < endtimes.size()) {
           colours[2] = endtimes[n+1].second ;
@@ -763,10 +781,10 @@ void ChartPlot::showAnnotations(QPainter &painter)
     painter.setPen(pen) ;
     int xstart = time_to_pos(std::get<0>(ann)) ;
     int xend = time_to_pos(std::get<1>(ann)) ;
-    if (MARGIN_LEFT < xstart < right_side)
+    if (MARGIN_LEFT < xstart && xstart < right_side)
       painter.drawLine(QPoint(xstart, ann_top),
                        QPoint(xstart, MARGIN_TOP+m_plotheight)) ;
-    if (MARGIN_LEFT < xend < right_side)
+    if (MARGIN_LEFT < xend && xend < right_side)
       painter.drawLine(QPoint(xend, ann_top),
                        QPoint(xend, MARGIN_TOP+m_plotheight)) ;
     if (xstart < right_side && MARGIN_LEFT < xend) {

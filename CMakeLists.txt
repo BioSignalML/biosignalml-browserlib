@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.1)
 project(browser)
 
 FIND_PACKAGE(biosignalml REQUIRED)
-#set(INCLUDES ${biosignalml_INCLUDE_DIR})
-set(LIBRARIES ${biosignalml_LIBRARY})
+set(INCLUDES ${INCLUDES} ${biosignalml_INCLUDE_DIR})
+set(LIBRARIES ${LIBRARIES} ${biosignalml_LIBRARY})
 
 FIND_PACKAGE(typedobject REQUIRED)
-#set(INCLUDES ${typedobject_INCLUDE_DIR})
+set(INCLUDES ${INCLUDES} ${typedobject_INCLUDE_DIR})
 set(LIBRARIES ${LIBRARIES} ${typedobject_LIBRARY})
 
 if(UNIX)
@@ -28,13 +28,20 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui     REQUIRED)
 
 
+include_directories(${INCLUDES})
 
 set(SOURCES
   nrange.cpp
+  widgets.cpp
   table.cpp
   annotationlist.cpp
   annotationdialog.cpp
+  signalview.cpp
+  signallist.cpp
+  scroller.cpp
   chartplot.cpp
+  chartform.cpp
+  mainwindow.cpp
   browser.cpp 
   )
 

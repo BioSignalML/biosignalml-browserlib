@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="ChartFrame" name="frame">
+    <widget class="browser::ChartFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -26,7 +26,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="ChartPlot" name="chart"/>
+         <widget class="browser::ChartPlot" name="chart"/>
         </item>
         <item>
          <widget class="QScrollBar" name="timescroll">
@@ -44,15 +44,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ChartPlot</class>
-   <extends>QGraphicsView</extends>
-   <header>chartplot.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ChartFrame</class>
+   <class>browser::ChartFrame</class>
    <extends>QFrame</extends>
    <header>widgets.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>browser::ChartPlot</class>
+   <extends>QGraphicsView</extends>
+   <header>chartplot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

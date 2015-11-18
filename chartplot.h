@@ -33,6 +33,7 @@
 #include <QVector>
 #include <QScrollBar>
 #include <QMouseEvent>
+#include <QWidget>
 
 #include <cmath>
 
@@ -96,7 +97,7 @@ namespace browser {
     virtual QString yPosition(float timepos) const { return "" ; }
 
     /** Add data to a trace. */
-    virtual void appendData(const bsml::data::TimeSeries::Reference &data,
+    virtual void appendData(const bsml::data::TimeSeries::Ptr &data,
                             float ymin=NAN, float ymax=NAN) = 0 ;
 
     /** Draw the trace.
@@ -123,11 +124,11 @@ namespace browser {
   {
    public:
     SignalTrace(const QString &label, const QString &units,
-                const bsml::data::TimeSeries::Reference &data=nullptr,
+                const bsml::data::TimeSeries::Ptr &data=nullptr,
                 float ymin=NAN, float ymax=NAN) ;
 
     int gridheight(void) const override ;
-    void appendData(const bsml::data::TimeSeries::Reference &data,
+    void appendData(const bsml::data::TimeSeries::Ptr &data,
                     float ymin=NAN, float ymax=NAN) override ;
     void drawTrace(QPainter &painter, float start, float end, int labelfreq,
                    const QVector<float> &markers) override ;
@@ -155,11 +156,11 @@ namespace browser {
    public:
     EventTrace(const QString &label,
       const EventMap &mapping=[](float x) { return QString("%1").arg(x) ; },
-      const bsml::data::TimeSeries::Reference &data=nullptr) ;
+      const bsml::data::TimeSeries::Ptr &data=nullptr) ;
 
     int gridheight(void) const override ;
     QString yPosition(float timepos) const override ;
-    void appendData(const bsml::data::TimeSeries::Reference &data,
+    void appendData(const bsml::data::TimeSeries::Ptr &data,
                     float ymin=NAN, float ymax=NAN) override ;
     void drawTrace(QPainter &painter, float start, float end, int labelfreq,
                    const QVector<float> &markers) override ;
@@ -183,8 +184,8 @@ namespace browser {
     ChartPlot(QWidget *parent=nullptr) ;
 
     void setId(const QString &id) ;
-    void setSemanticTags(const TagDict &tags) ;
-    const TagDict &semanticTags(void) const ;
+    void setSemanticTags(const QStringDictionary &tags) ;
+    const QStringDictionary &semanticTags(void) const ;
     void setTimeScroll(QScrollBar &scrollbar) ;
     void moveTimeScroll(QScrollBar &scrollbar) ;
 
@@ -195,16 +196,17 @@ namespace browser {
     void mouseReleaseEvent(QMouseEvent *event) ;
     void contextMenuEvent(QContextMenuEvent *event) ;
 
+//    QSize sizeHint(void) const ;
+
    public slots:
     void addSignalTrace(const QString &id, const QString &label, const QString &units,
-                        bool visible=true,
-                        const bsml::data::TimeSeries::Reference &data=nullptr,
-                        float ymin=NAN, float ymax=NAN) ;
-    void addEventTrace(const QString &id, const QString &label,
-                       const EventMap &mapping=[](float x) { return QString("%1").arg(x) ; },
-                       bool visible=true,
-                       const bsml::data::TimeSeries::Reference &data=nullptr) ;
-    void appendData(const QString &id, const bsml::data::TimeSeries::Reference &data) ;
+                        bool visible=true) ;
+//TODO                        const bsml::data::TimeSeries::Ptr &data=nullptr,
+//TODO                        float ymin=NAN, float ymax=NAN) ;
+    void addEventTrace(const QString &id, const QString &label, bool visible=true) ;
+//TODO                       const EventMap &mapping=[](float x) { return QString("%1").arg(x) ; },
+//TODO                       const bsml::data::TimeSeries::Ptr &data=nullptr) ;
+    void appendData(const QString &id, const bsml::data::TimeSeries::Ptr &data) ;
     void setTraceVisible(const QString &id, bool visible=true) ;
 
     /** Get list of trace ids in display order. */
@@ -283,7 +285,7 @@ namespace browser {
 
     Qt::MouseButton m_mousebutton ;
 
-    TagDict m_semantictags ;       //!< uri --> label
+    QStringDictionary m_semantictags ; //!< uri --> label
 
     AnnotationDict m_annotations ; //!< id --> to tuple(start, end, text, tags, editable)
     AnnRectList m_annrects ;

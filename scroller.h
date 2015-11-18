@@ -18,46 +18,59 @@
  *                                                                           *
  *****************************************************************************/
 
-#ifndef BROWSER_NRANGE_H
-#define BROWSER_NRANGE_H
+#ifndef BROWSER_SCROLLER_H
+#define BROWSER_SCROLLER_H
+
+#include "ui_scroller.h"
+#include "nrange.h"
+
+#include <biosignalml/biosignalml.h>
+
+#include <QWidget>
+
 
 namespace browser {
 
-  static const int POINTS_PER_MAJOR = 1000 ;
-
- /**
-  * Calculate spacing of major and minor grid points.
-  * 
-  * Major spacing is selected to be either 1, 2, or 5, multipled by
-  * a power of ten; minor spacing is respectively 0.2, 0.5 or 1.0.
-  *
-  * Spacing is chosen so that around 10 major grid points span the
-  * interval.
-  **/
-  class NumericRange
-  /*---------------*/
+  class Scroller : public QWidget
+  /*==============================*/
   {
+   Q_OBJECT
+
    public:
-    NumericRange() ;
-    NumericRange(const double start, const double end) ;
+    Scroller(QWidget *parent, bsml::Recording::Ptr recording, float start, float duration) ;
 
-    double map(const double a, const int extra=0) const ;
+    void setup_slider(void) ;
+    void timerEvent(QTimerEvent *event) ;
+    void on_segment_valueChanged(int position) ;
+    void on_segment_sliderReleased(void) ;
 
-    inline double major(void) const { return m_major ; }
-    inline double minor(void) const { return m_minor ; }
-    inline double quanta(void) const { return m_quanta ; }
-    inline double start(void) const { return m_start ; }
-    inline double end(void) const { return m_end ; }
-    inline int major_size(void) const { return m_major_size ; }
+   public slots:
+    void show_slidertime(float time) ;
+    void set_slidervalue(float time) ;
+    void move_plot(float start) ;
+
+   signals:
+    void set_plot_timerange(float, float) ;
+    void show_signals(bsml::Interval::Ptr) ;
+    void show_annotations(void) ;
 
    private:
-    double m_major ;
-    double m_minor ;
-    double m_quanta ;
-    double m_start ;
-    double m_end ;
-    int m_major_size ;
+    void set_slidertime(QLabel *label, float time) ;
+    void stop_movetimer(void) ;
+    void start_movetimer(void) ;
+    void slider_moved(void) ;
+
+    Ui::Scroller m_ui ;
+
+    bsml::Recording::Ptr m_recording ;
+    float m_start ;
+    float m_duration ;
+    NumericRange m_timerange ;
+    int m_movetimer ;
+    float m_newstart ;
+    bool m_sliding ;
     } ;
 
   } ;
+
 #endif

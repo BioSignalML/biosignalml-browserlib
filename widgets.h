@@ -18,46 +18,31 @@
  *                                                                           *
  *****************************************************************************/
 
-#ifndef BROWSER_NRANGE_H
-#define BROWSER_NRANGE_H
+#ifndef BROWSER_WIDGETS_H
+#define BROWSER_WIDGETS_H
+
+#include <QFrame>
+
 
 namespace browser {
 
-  static const int POINTS_PER_MAJOR = 1000 ;
-
- /**
-  * Calculate spacing of major and minor grid points.
-  * 
-  * Major spacing is selected to be either 1, 2, or 5, multipled by
-  * a power of ten; minor spacing is respectively 0.2, 0.5 or 1.0.
-  *
-  * Spacing is chosen so that around 10 major grid points span the
-  * interval.
-  **/
-  class NumericRange
-  /*---------------*/
+  class ChartFrame : public QFrame
+  /*============================*/
   {
+   Q_OBJECT
+
    public:
-    NumericRange() ;
-    NumericRange(const double start, const double end) ;
+    ChartFrame(QWidget *parent) ;
 
-    double map(const double a, const int extra=0) const ;
+    void resizeEvent(QEvent *event) ;
 
-    inline double major(void) const { return m_major ; }
-    inline double minor(void) const { return m_minor ; }
-    inline double quanta(void) const { return m_quanta ; }
-    inline double start(void) const { return m_start ; }
-    inline double end(void) const { return m_end ; }
-    inline int major_size(void) const { return m_major_size ; }
-
-   private:
-    double m_major ;
-    double m_minor ;
-    double m_quanta ;
-    double m_start ;
-    double m_end ;
-    int m_major_size ;
+   signals:
+    /**
+     * Emit a signal when the size of the chart's frame changes.
+     */
+    void frameResize(QRect) ;
     } ;
 
   } ;
+
 #endif

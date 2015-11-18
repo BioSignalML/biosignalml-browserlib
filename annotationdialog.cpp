@@ -19,7 +19,6 @@
  *****************************************************************************/
 
 #include "annotationdialog.h"
-#include "chartplot.h"
 
 using namespace browser ;
 
@@ -55,7 +54,7 @@ AnnotationDialog::AnnotationDialog(ChartPlot *parent, const QString &id, float s
   m_ui.annotation->setPlainText(text) ;
   m_ui.taglist->setSelectionMode(QAbstractItemView::ExtendedSelection) ;
 
-  const TagDict &semantic_tags = parent->semanticTags() ;  // { uri: label }
+  const QStringDictionary &semantic_tags = parent->semanticTags() ;  // { uri: label }
   for (auto const &u : semantic_tags.keys())
     add_tagitem(u, semantic_tags.value(u)) ;
   for (auto const &t : tags)     // Show 'unknown' tags

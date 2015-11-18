@@ -36,23 +36,25 @@
 
 namespace browser {
 
-  typedef std::tuple<bsml::Annotation, RowData, bool> AnnRow ;
-  typedef std::unique_ptr<const AnnRow> AnnRowPtr ;
+  using AnnRow = std::tuple<bsml::Annotation::Ptr, std::shared_ptr<RowData>, bool> ;
 
-  class AnnotationTable : public TableModel::TableModel
-  /*=================================================*/
+  class AnnotationModel : public TableModel
+  /*=====================================*/
   {
+   Q_OBJECT
+
     // <annotation, rowdata, editable>
     typedef QList<AnnRow> AnnRows ;
 
    public:
-    AnnotationTable(const NumericRange &timemap) ;
+    AnnotationModel(QObject *parent, const NumericRange &timemap) ;
 
-    AnnRowPtr get_row(int row) const ;
-    AnnRowPtr find_annotation(const QString &uri) const ;
-    void add_row(const bsml::Annotation &annotation, float start, float end, const QString &type,
+    const AnnRow &get_row(int row) const ;
+    bsml::Annotation::Ptr find_annotation(const QString &uri) const ;
+    void add_row(bsml::Annotation::Ptr &ann, float start, float end, const QString &type,
                  const QString &text, const QString &tagtext="", bool editable=false) ;
     void delete_row(const QString &uri) ;
+    const AnnRows &rows(void) const { return m_rows ; }
 
     static QStringList header(void) ;
 
@@ -69,10 +71,10 @@ namespace browser {
   {
     Q_OBJECT
 
-    typedef QHash<QString, floatPair> EventDict ;  //!< uri: (start, duration)
+    using EventDict = QHash<QString, floatPair> ;  //!< uri: (start, duration)
 
    public:
-    AnnotationList(QWidget *parent, const bsml::Recording &recording,
+    AnnotationList(QWidget *parent, bsml::Recording::Ptr recording,
                    const QStringDictionary &semantic_tags) ;
     ~AnnotationList() ;
 
@@ -81,8 +83,7 @@ namespace browser {
 
     void on_annotations_doubleClicked(const QModelIndex &index) ;
     void on_events_currentIndexChanged(const QString &eventtype) ;
-    void add_annotation(float start, float end, const QString &text, const QStringList &tags,
-                        const bsml::Annotation &predecessor=bsml::Annotation()) ;
+    void add_annotation(float start, float end, const QString &text, const QStringList &tags) ;
     void modify_annotation(const QString &id, const QString &text, const QStringList &tags) ;
     void delete_annotation(const QString &id) ;
 
@@ -93,22 +94,22 @@ namespace browser {
     void set_marker(float) ;
     void set_slider_value(float) ;
     void show_slider_time(float) ;
-    void modified(const rdf::URI &uri) ;
+    void recording_changed(const rdf::URI &uri) ;
 
    private:
     QString tag_labels(const QStringList &tags) ;
 
-    void append_annotation(bsml::Object::Reference about, const QString &text,
+    void append_annotation(bsml::Resource::Ptr about, const QString &text,
                            const QStringList &tags,
-                           const bsml::Annotation &predecessor=bsml::Annotation()) ;
+                           const bsml::Annotation::Ptr &predecessor=nullptr) ;
     void remove_annotation(const QString &id) ;
 
-    bsml::Recording m_recording ;
+    bsml::Recording::Ptr m_recording ;
     QStringDictionary m_semantic_tags ;
     Ui_AnnotationList m_ui ;
 
     SortedTable *m_table ;
-    AnnotationTable *m_tablerows ;
+    AnnotationModel *m_model ;
 
     EventDict m_events ;
     RowPosns m_event_posns ;

@@ -18,46 +18,38 @@
  *                                                                           *
  *****************************************************************************/
 
-#ifndef BROWSER_NRANGE_H
-#define BROWSER_NRANGE_H
+#ifndef BROWSER_CHARTFORM_H
+#define BROWSER_CHARTFORM_H
+
+#include <QWidget>
+
+#include "ui_chart.h"
+
 
 namespace browser {
 
-  static const int POINTS_PER_MAJOR = 1000 ;
-
- /**
-  * Calculate spacing of major and minor grid points.
-  * 
-  * Major spacing is selected to be either 1, 2, or 5, multipled by
-  * a power of ten; minor spacing is respectively 0.2, 0.5 or 1.0.
-  *
-  * Spacing is chosen so that around 10 major grid points span the
-  * interval.
-  **/
-  class NumericRange
-  /*---------------*/
+  class ChartForm : public QWidget
+  /*============================*/
   {
+   Q_OBJECT
+
    public:
-    NumericRange() ;
-    NumericRange(const double start, const double end) ;
+    ChartForm(QWidget *parent) ;
 
-    double map(const double a, const int extra=0) const ;
-
-    inline double major(void) const { return m_major ; }
-    inline double minor(void) const { return m_minor ; }
-    inline double quanta(void) const { return m_quanta ; }
-    inline double start(void) const { return m_start ; }
-    inline double end(void) const { return m_end ; }
-    inline int major_size(void) const { return m_major_size ; }
+    void setTimeRange(float start, float duration) ;
+    void on_timescroll_valueChanged(int position) ;
+    void on_frame_frameResize(QRect &geometry) ;
+    void on_chart_customContextMenuRequested(const QPoint &pos) ;
+    const Ui::Chart &ui(void) const { return m_ui ; }
+     
+   public slots:
+    void position_timescroll(bool visible) ;
+    void chart_resize(int offset, int width, int bottom) ;
 
    private:
-    double m_major ;
-    double m_minor ;
-    double m_quanta ;
-    double m_start ;
-    double m_end ;
-    int m_major_size ;
+    Ui::Chart m_ui ;
     } ;
 
   } ;
+
 #endif

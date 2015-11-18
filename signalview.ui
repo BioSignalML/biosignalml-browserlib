@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SignalList</class>
- <widget class="QWidget" name="SignalList">
+ <class>SignalView</class>
+ <widget class="QWidget" name="SignalView">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -36,7 +36,7 @@
       </widget>
      </item>
      <item>
-      <widget class="SignalTable" name="signals">
+      <widget class="browser::SignalView" name="signallist">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -85,9 +85,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SignalTable</class>
+   <class>browser::SignalView</class>
    <extends>QTableView</extends>
-   <header>signaltable.h</header>
+   <header>signalview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

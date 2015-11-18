@@ -37,30 +37,30 @@ namespace browser {
   class Trace ;          // Declare forward
 
   //! A row of a table
-  typedef QVector<QVariant> RowData ;
+  using RowData = QVector<QVariant> ;
   //! `first` and `last` position of rows added to a table
-  typedef QPair<int, int> RowPosns ;
+  using RowPosns = QPair<int, int> ;
   //! Get data for a cell in a table
-  typedef std::function<QVariant(int, int)> TableDataFunction ;
+  using TableDataFunction = std::function<QVariant(int, int)> ;
 
-  typedef std::function<QString (float)> EventMap ;
-  typedef QPair<float, QString> EventInfo ;
-  typedef std::tuple<float, float, QString> EventPosInfo ;
+  using EventMap = std::function<QString (float)> ;
+  using EventInfo = QPair<float, QString> ;
+  using EventPosInfo = std::tuple<float, float, QString> ;
 
-  typedef std::pair<QString, QString> QStringPair ;
-  typedef QHash<QString, QString> QStringDictionary ;
-  typedef std::pair<float, float> floatPair ;
+  using QStringPair = std::pair<QString, QString> ;
+  using QStringDictionary = QHash<QString, QString> ;
+  using floatPair = std::pair<float, float> ;
 
-  typedef std::tuple<QString, bool, std::shared_ptr<Trace>> TraceInfo ;
-  typedef QList<TraceInfo> TraceList ;
+  using TraceInfo = std::tuple<QString, bool, std::shared_ptr<Trace>> ;
+  using TraceList = QList<TraceInfo> ;
 
-  typedef QPair<int, float> PosnTime ;
+  using PosnTime = QPair<int, float> ;
 
   //! <start, end, text, tags, editable>
-  typedef std::tuple<float, float, QString, QStringList, bool> AnnInfo ;
-  typedef QMap<QString, AnnInfo> AnnotationDict ;
+  using AnnInfo = std::tuple<float, float, QString, QStringList, bool> ;
+  using AnnotationDict = QMap<QString, AnnInfo> ;
 
-  typedef QList<QPair<QRect, QString>> AnnRectList ; // List of tuple(rect, id)
+  using AnnRectList = QList<QPair<QRect, QString>> ; // List of tuple(rect, id)
   } ;
 
 #endif

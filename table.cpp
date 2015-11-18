@@ -58,7 +58,7 @@ void TableView::resizeCells(void)  // Needs to be done after table is populated
 
 
 TableModel::TableModel(QObject *parent, const QStringList &header, const QStringList &rowids)
-/*-----------------------------------------------------------------------------------------*/
+/*=========================================================================================*/
 : QAbstractTableModel(parent),
   m_header(header),
   m_rowids(rowids),
@@ -149,13 +149,12 @@ void TableModel::deleteRow(const QString &key)
   }
 
 
-SortedTable::SortedTable(QObject *parent, TableView::TableView *view, TableModel::TableModel *table,
+SortedTable::SortedTable(QObject *parent, TableView::TableView *view, TableModel::TableModel *model)
 /*================================================================================================*/
-                         const QStringList &header, const QStringList &rowids)
 : QSortFilterProxyModel(parent),
-  m_table(table)
+  m_model(model)
 {
-  setSourceModel(m_table) ;
+  setSourceModel(m_model) ;
   view->setModel(this) ;
   view->setSortingEnabled(true) ;
   view->setColumnHidden(0, true) ;
@@ -166,24 +165,24 @@ SortedTable::SortedTable(QObject *parent, TableView::TableView *view, TableModel
 RowPosns SortedTable::appendRows(const QStringList &rowids)
 /*-------------------------------------------------------*/
 {
-  emit m_table->layoutAboutToBeChanged() ;
-  RowPosns posns = m_table->appendRows(rowids) ;
-  emit m_table->layoutChanged() ;
+  emit m_model->layoutAboutToBeChanged() ;
+  RowPosns posns = m_model->appendRows(rowids) ;
+  emit m_model->layoutChanged() ;
   return posns ;
   }
 
 void SortedTable::removeRows(const RowPosns &posns)
 /*-----------------------------------------------*/
 {
-  emit m_table->layoutAboutToBeChanged() ;
-  m_table->removeRows(posns) ;
-  emit m_table->layoutChanged() ;
+  emit m_model->layoutAboutToBeChanged() ;
+  m_model->removeRows(posns) ;
+  emit m_model->layoutChanged() ;
   }
 
 void SortedTable::deleteRow(const QString &key)
 /*-------------------------------------------*/
 {
-  emit m_table->layoutAboutToBeChanged() ;
-  m_table->deleteRow(key) ;
-  emit m_table->layoutChanged() ;
+  emit m_model->layoutAboutToBeChanged() ;
+  m_model->deleteRow(key) ;
+  emit m_model->layoutChanged() ;
   }

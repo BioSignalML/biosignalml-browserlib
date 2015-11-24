@@ -1,0 +1,19 @@
+set(INCLUDES ${INCLUDES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE)
+
+set(SOURCES ${SOURCES}
+  ${CMAKE_CURRENT_SOURCE_DIR}/nrange.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/widgets.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/table.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/annotationlist.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/annotationdialog.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/signalview.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/signallist.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/scroller.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/chartplot.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/chartform.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/browser.cpp
+  PARENT_SCOPE
+  )

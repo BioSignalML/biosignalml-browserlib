@@ -27,26 +27,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui     REQUIRED)
 
+add_subdirectory(src)
 
 include_directories(${INCLUDES})
-
-set(SOURCES
-  nrange.cpp
-  widgets.cpp
-  table.cpp
-  annotationlist.cpp
-  annotationdialog.cpp
-  signalview.cpp
-  signallist.cpp
-  scroller.cpp
-  chartplot.cpp
-  chartform.cpp
-  mainwindow.cpp
-  browser.cpp 
-  )
-
 add_executable(browser ${SOURCES})
-qt5_use_modules(browser Widgets Gui)
 
-message("LIBS: ${LIBRARIES}")
+qt5_use_modules(browser Widgets Gui)
 target_link_libraries(browser ${LIBRARIES})

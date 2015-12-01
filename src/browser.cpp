@@ -36,7 +36,33 @@ using namespace browser ;
 int main(int argc, char *argv[])
 /*============================*/
 {
+#if TESTING
+  QApplication app(argc, argv) ;
 
+  ChartPlot chart ;
+  chart.addSignalTrace("1", "Sine wave", "units 1") ;
+  chart.addSignalTrace("2", "Cosine",    "units 2") ;
+
+  int points = 1000 ;
+  std::vector<double> sine(points+1) ;
+  std::vector<double> cosine(points+1) ;
+  for (int n = 0 ;  n <= points ;  ++n) {
+    sine[n] = std::sin(2.0*M_PI*n/(double)points) ;
+    cosine[n] = std::cos(2.0*M_PI*n/(double)points) ;
+    }
+//  print(tsdata) ;
+  auto sindata = std::make_shared<bsml::data::UniformTimeSeries>(1, sine) ;
+  auto cosdata = std::make_shared<bsml::data::UniformTimeSeries>(1, cosine) ;
+  chart.setTimeRange(0.0, points) ;
+  chart.appendData("1", sindata) ;
+  chart.appendData("2", cosdata) ;
+
+  chart.addAnnotation("ann1", 250, 750, "the big middle bit...", QStringList(), true) ;
+  chart.addAnnotation("ann2", 450, 550, "the little middle bit...", QStringList{"tag1", "tag2"}, true) ;
+
+  chart.show() ;
+  return app.exec() ;
+#else
   if (argc <= 1) {
     std::cerr << "Usage: "<< argv[0] << " RECORDING [start] [duration]" << std::endl ;
     exit(1) ;
@@ -93,4 +119,5 @@ int main(int argc, char *argv[])
   viewer.show() ;
 
   return app.exec() ;
+#endif
   }

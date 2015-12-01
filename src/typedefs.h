@@ -27,6 +27,7 @@
 #include <QMap>
 #include <QRect>
 #include <QStringList>
+#include <QVariant>
 
 #include <tuple>
 #include <functional>

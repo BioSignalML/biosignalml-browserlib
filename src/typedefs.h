@@ -31,7 +31,7 @@
 
 #include <tuple>
 #include <functional>
-
+#include <memory>
 
 namespace browser {
 

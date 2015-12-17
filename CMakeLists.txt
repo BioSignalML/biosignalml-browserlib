@@ -24,8 +24,19 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Qt5 packages find their own dependencies.
+find_package(Qt5Core    REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui     REQUIRED)
+
+# Keep track of some information about Qt
+set(QT_BINARY_DIR ${_qt5Widgets_install_prefix}/bin)
+set(QT_LIBRARY_DIR ${_qt5Widgets_install_prefix}/lib)
+set(QT_PLUGINS_DIR ${_qt5Widgets_install_prefix}/plugins)
+set(QT_VERSION ${Qt5Widgets_VERSION})
+set(QT_VERSION_MAJOR ${Qt5Widgets_VERSION_MAJOR})
+set(QT_VERSION_MINOR ${Qt5Widgets_VERSION_MINOR})
+set(QT_VERSION_PATCH ${Qt5Widgets_VERSION_PATCH})
+
 
 add_subdirectory(src)
 
@@ -38,6 +49,18 @@ target_link_libraries(browserlib ${LIBRARIES})
 
 set(QT_LIBRARIES Core Widgets Gui)
 qt5_use_modules(browserlib ${QT_LIBRARIES})
+
+if(APPLE)
+  foreach(QT_LIBRARY ${QT_LIBRARIES})
+    set(QT_LIBRARY_FILENAME Qt${QT_LIBRARY}.framework/Versions/${QT_VERSION_MAJOR}/Qt${QT_LIBRARY})
+    add_custom_command(TARGET browserlib POST_BUILD
+               COMMAND install_name_tool -change ${QT_LIBRARY_DIR}/${QT_LIBRARY_FILENAME}
+                               @rpath/${QT_LIBRARY_FILENAME}
+                               ${CMAKE_BINARY_DIR}/libbrowserlib.dylib)
+  endforeach()
+endif()
+
+
 add_executable(browser src/main.cpp)
 target_link_libraries(browser browserlib)
 

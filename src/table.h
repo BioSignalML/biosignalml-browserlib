@@ -101,7 +101,7 @@ namespace browser {
   {
     Q_OBJECT
    public:
-    SortedTable(QObject *parent, TableView *view, TableModel::TableModel *table) ;
+    SortedTable(QObject *parent, TableView *view, TableModel *table) ;
 
     RowPosns appendRows(const QStringList &rowids) ;
     void removeRows(const RowPosns &posns) ;

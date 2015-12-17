@@ -51,8 +51,8 @@ QString expand_uri(const QString &uri)
 
 
 AnnotationModel::AnnotationModel(QObject *parent, const NumericRange &timemap)
-/*================================================--========================*/
-: TableModel::TableModel(parent, this->header(), QStringList()),
+/*==========================================================================*/
+: TableModel(parent, this->header(), QStringList()),
   m_rows(AnnRows()), m_timemap(timemap)
 {
   }

@@ -149,8 +149,8 @@ void TableModel::deleteRow(const QString &key)
   }
 
 
-SortedTable::SortedTable(QObject *parent, TableView::TableView *view, TableModel::TableModel *model)
-/*================================================================================================*/
+SortedTable::SortedTable(QObject *parent, TableView *view, TableModel *model)
+/*=========================================================================*/
 : QSortFilterProxyModel(parent),
   m_model(model)
 {

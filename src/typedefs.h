@@ -48,8 +48,8 @@ namespace browser {
   using EventInfo = QPair<float, QString> ;
   using EventPosInfo = std::tuple<float, float, QString> ;
 
-  using QStringPair = std::pair<QString, QString> ;
-  using QStringDictionary = QHash<QString, QString> ;
+  using StringPair = std::pair<QString, QString> ;
+  using StringDictionary = QHash<QString, QString> ;
   using floatPair = std::pair<float, float> ;
 
   using TraceInfo = std::tuple<QString, bool, std::shared_ptr<Trace>> ;

@@ -347,7 +347,7 @@ ChartPlot::ChartPlot(QWidget *parent)
   
   m_annotations = AnnotationDict() ;
   m_annrects = AnnRectList() ;
-  m_semantictags = QStringDictionary() ;
+  m_semantictags = StringDictionary() ;
   }
 
 void ChartPlot::setId(const QString &id)
@@ -356,13 +356,13 @@ void ChartPlot::setId(const QString &id)
   m_id = id ;
   }
 
-void ChartPlot::setSemanticTags(const QStringDictionary &tags)
+void ChartPlot::setSemanticTags(const StringDictionary &tags)
 /*----------------------------------------------------------*/
 {
   m_semantictags = tags ;
   }
 
-const QStringDictionary &ChartPlot::semanticTags(void) const
+const StringDictionary &ChartPlot::semanticTags(void) const
 /*--------------------------------------------------------*/
 {
   return m_semantictags ;

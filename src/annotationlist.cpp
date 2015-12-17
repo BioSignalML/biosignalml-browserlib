@@ -25,11 +25,11 @@
 using namespace browser ;
 
 
-QStringDictionary PREFIXES {
-  QStringPair("bsml",  "http://www.biosignalml.org/ontologies/2011/04/biosignalml#"),
-  QStringPair("dct",   "http://purl.org/dc/terms/"),
-  QStringPair("rdfs",  "http://www.w3.org/2000/01/rdf-schema#"),
-  QStringPair("pbank", "http://www.biosignalml.org/ontologies/examples/physiobank#")
+StringDictionary PREFIXES {
+  StringPair("bsml",  "http://www.biosignalml.org/ontologies/2011/04/biosignalml#"),
+  StringPair("dct",   "http://purl.org/dc/terms/"),
+  StringPair("rdfs",  "http://www.w3.org/2000/01/rdf-schema#"),
+  StringPair("pbank", "http://www.biosignalml.org/ontologies/examples/physiobank#")
   } ;
 
 
@@ -147,7 +147,7 @@ QVariant AnnotationModel::data(const QModelIndex &index, int role) const
 
 AnnotationList::AnnotationList(QWidget *parent, bsml::Recording::Ptr recording,
 /*===========================================================================*/
-                               const QStringDictionary &semantic_tags)
+                               const StringDictionary &semantic_tags)
 : QWidget(parent),
   m_recording(recording),
   m_semantic_tags(semantic_tags),

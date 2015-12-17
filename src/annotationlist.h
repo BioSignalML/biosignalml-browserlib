@@ -75,7 +75,7 @@ namespace browser {
 
    public:
     AnnotationList(QWidget *parent, bsml::Recording::Ptr recording,
-                   const QStringDictionary &semantic_tags) ;
+                   const StringDictionary &semantic_tags) ;
     ~AnnotationList() ;
 
    public slots:
@@ -105,7 +105,7 @@ namespace browser {
     void remove_annotation(const QString &id) ;
 
     bsml::Recording::Ptr m_recording ;
-    QStringDictionary m_semantic_tags ;
+    StringDictionary m_semantic_tags ;
     Ui_AnnotationList m_ui ;
 
     SortedTable *m_table ;

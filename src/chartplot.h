@@ -184,8 +184,8 @@ namespace browser {
     ChartPlot(QWidget *parent=nullptr) ;
 
     void setId(const QString &id) ;
-    void setSemanticTags(const QStringDictionary &tags) ;
-    const QStringDictionary &semanticTags(void) const ;
+    void setSemanticTags(const StringDictionary &tags) ;
+    const StringDictionary &semanticTags(void) const ;
     void setTimeScroll(QScrollBar &scrollbar) ;
     void moveTimeScroll(QScrollBar &scrollbar) ;
 
@@ -285,7 +285,7 @@ namespace browser {
 
     Qt::MouseButton m_mousebutton ;
 
-    QStringDictionary m_semantictags ; //!< uri --> label
+    StringDictionary m_semantictags ; //!< uri --> label
 
     AnnotationDict m_annotations ; //!< id --> to tuple(start, end, text, tags, editable)
     AnnRectList m_annrects ;

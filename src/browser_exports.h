@@ -18,69 +18,51 @@
  *                                                                           *
  *****************************************************************************/
 
-#ifndef BROWSER_MAINWINDOW_H
-#define BROWSER_MAINWINDOW_H
+#ifndef BROWSER_EXPORTS_H
+#define BROWSER_EXPORTS_H
 
-#include "typedefs.h"
-#include "chartform.h"
+#include <QtGlobal>
 
-#include "signallist.h"
-#include "annotationlist.h"
-#include "scroller.h"
+#ifdef BROWSER_STATIC_DEFINE
+#  define BROWSER_EXPORT
+#  define BROWSER_NO_EXPORT
+#else
+#  ifndef BROWSER_EXPORT
+#    ifdef browserlib_EXPORTS   /* We are building the library */
+#      define BROWSER_EXPORT Q_DECL_EXPORT
+#    else                       /* We are using the library */
+#      define BROWSER_EXPORT Q_DECL_IMPORT
+#    endif
+#  endif
 
-#include <biosignalml/biosignalml.h>
+#  ifndef BROWSER_NO_EXPORT
+#    ifdef WIN32
+#      define BROWSER_NO_EXPORT 
+#    else
+#      define BROWSER_NO_EXPORT __attribute__((visibility("hidden")))
+#    endif
+#  endif
+#endif
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include <QVBoxLayout>
-#include <QThread>
+#ifndef BROWSER_DEPRECATED
+#  ifdef WIN32
+#    define BROWSER_DEPRECATED __declspec(deprecated)
+#  else
+#    define BROWSER_DEPRECATED __attribute__ ((__deprecated__))
+#  endif
+#endif
 
+#ifndef BROWSER_DEPRECATED_EXPORT
+#  define BROWSER_DEPRECATED_EXPORT BROWSER_EXPORT BROWSER_DEPRECATED
+#endif
 
-namespace Ui {
+#ifndef BROWSER_DEPRECATED_NO_EXPORT
+#  define BROWSER_DEPRECATED_NO_EXPORT BROWSER_NO_EXPORT BROWSER_DEPRECATED
+#endif
 
-  class MainWindow
-  /*============*/
-  {
-   public:
-    void setupUi(QMainWindow *mainWindow, QWidget *signalsWidget,
-                 QWidget *annotationsWidget, QWidget *scrollWidget) ;
-
-    QWidget *centralwidget ;
-    QVBoxLayout *verticalLayout ;
-    browser::ChartForm *chartform ;
-    QDockWidget *signalsDock ;
-    QDockWidget *annotationsDock ;
-    QDockWidget *scrollDock ;
-    } ;
-
-  } ;
-
-
-namespace browser {
-
-  class SignalReadThread : public QObject
-  /*===================================*/
-  {
-   Q_OBJECT
-
-   public:
-    SignalReadThread(bsml::Signal::Ptr signal, bsml::Interval::Ptr interval,
-                     ChartPlot *plotter) ;
-    void start(void) ;
-    void stop(void) ;
-    bool wait(unsigned long time) ;
-
-   signals:
-    void append_points(QString, const bsml::data::TimeSeries::Ptr &) ;
-
-   private:
-    bsml::Signal::Ptr m_signal ;
-    bsml::Interval::Ptr m_interval ;
-    QString m_id ;
-    bool m_exit ;
-    QThread m_thread ;
-    } ;
-
-  } ;
+#define DEFINE_NO_DEPRECATED 0
+#if DEFINE_NO_DEPRECATED
+# define BROWSER_NO_DEPRECATED
+#endif
 
 #endif

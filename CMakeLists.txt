@@ -30,7 +30,14 @@ find_package(Qt5Gui     REQUIRED)
 add_subdirectory(src)
 
 include_directories(${INCLUDES})
-add_executable(browser ${SOURCES})
+add_library(browserlib SHARED ${SOURCES})
 
-qt5_use_modules(browser Widgets Gui)
-target_link_libraries(browser ${LIBRARIES})
+
+message("Libs: ${LIBRARIES}")
+target_link_libraries(browserlib ${LIBRARIES})
+
+set(QT_LIBRARIES Core Widgets Gui)
+qt5_use_modules(browserlib ${QT_LIBRARIES})
+add_executable(browser src/main.cpp)
+target_link_libraries(browser browserlib)
+

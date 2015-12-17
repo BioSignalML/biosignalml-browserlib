@@ -18,106 +18,178 @@
  *                                                                           *
  *****************************************************************************/
 
-#include "typedefs.h"
+#include "browser.h"
 #include "mainwindow.h"
+#include "signallist.h"
+#include "annotationlist.h"
+#include "scroller.h"
 
-#include <biosignalml/data/hdf5.h>
+#include <QMetaType>
+#include <QMessageLogger>
 
-#include <QApplication>
-
-#include <vector>
 #include <cmath>
-#include <iostream>
 #include <exception>
 
 using namespace browser ;
 
 
-int main(int argc, char *argv[])
-/*============================*/
+Browser::Browser(bsml::Recording::Ptr recording, float start, float end,
+/*====================================================================*/
+                       StringDictionary semantic_tags)  //, annotator=None) LAMBDA
+: QMainWindow(),
+  m_ui(new Ui::MainWindow()),
+  m_recording(recording),
+  m_modified(false),
+  m_closekey(new QShortcut(QKeySequence::Close, this)),
+  m_readers(QList<SignalReadThread *>())
 {
-#if TESTING
-  QApplication app(argc, argv) ;
-
-  ChartPlot chart ;
-  chart.addSignalTrace("1", "Sine wave", "units 1") ;
-  chart.addSignalTrace("2", "Cosine",    "units 2") ;
-
-  int points = 1000 ;
-  std::vector<double> sine(points+1) ;
-  std::vector<double> cosine(points+1) ;
-  for (int n = 0 ;  n <= points ;  ++n) {
-    sine[n] = std::sin(2.0*M_PI*n/(double)points) ;
-    cosine[n] = std::cos(2.0*M_PI*n/(double)points) ;
-    }
-//  print(tsdata) ;
-  auto sindata = std::make_shared<bsml::data::UniformTimeSeries>(1, sine) ;
-  auto cosdata = std::make_shared<bsml::data::UniformTimeSeries>(1, cosine) ;
-  chart.setTimeRange(0.0, points) ;
-  chart.appendData("1", sindata) ;
-  chart.appendData("2", cosdata) ;
-
-  chart.addAnnotation("ann1", 250, 750, "the big middle bit...", QStringList(), true) ;
-  chart.addAnnotation("ann2", 450, 550, "the little middle bit...", QStringList{"tag1", "tag2"}, true) ;
-
-  chart.show() ;
-  return app.exec() ;
-#else
-  if (argc <= 1) {
-    std::cerr << "Usage: "<< argv[0] << " RECORDING [start] [duration]" << std::endl ;
-    exit(1) ;
-    }
-
-  QString uri(argv[1]) ;
-
-  float start = 0.0 ;
-  float end = NAN ;
-  bool ok = false ;
-  if (argc >= 3) {
-    start = QString(argv[2]).toFloat(&ok) ;
-    if (!ok) {
-      std::cerr << "Invalid start time" << std::endl ;
-      exit(1) ;
+  float duration ;
+  if (isnan(end)) {
+    duration = (float)recording->duration() ;
+    if (isnan(duration) || duration <= 0.0) {
+      duration = 60.0 ;               //#####
+      recording->set_duration(duration) ;
       }
     }
-  if (argc >= 4) {
-    end = QString(argv[3]).toFloat(&ok) ;
-    if (!ok) {
-      std::cerr << "Invalid duration" << std::endl ;
-      exit(1) ;
-      }
+  else if (start <= end) {
+    duration = end - start ;
     }
-
-  QApplication app(argc, argv) ;
-  app.setStyle("fusion") ;   //# For Ubuntu 14.04
-
-  auto semantic_tags = QStringDictionary{} ;
-  bsml::HDF5::Recording::Ptr hdf5 = nullptr ;
-  try {
-    if (uri.startsWith("http://")) {
-//TODO      store = biosignalml.client.Repository(uri) ;
-//TODO      recording = store.get_recording(uri) ;
-//TODO      semantic_tags = store.get_semantic_tags() ;
-      }
-    else {                        //open ??
-      hdf5 = bsml::HDF5::Recording::create(uri.toStdString(), false) ;  // Open for reading, read/write
-      semantic_tags = QStringDictionary {  // Load from file
-          {"http://standards/org/ontology#tag1", "Tag 1"},
-          {"http://standards/org/ontology#tag2", "Tag 2"},
-          {"http://standards/org/ontology#tag3", "Tag 3"},
-          {"http://standards/org/ontology#tag4", "Tag 4"}
-        } ;
-      }
+  else {
+    duration = start - end ;
+    start = end ;
     }
-  catch (std::exception &e) {
-    //throw ;  //##################
-    qCritical("Exception: %s", e.what()) ;
-    exit(1) ;
-    }
+  m_start = start ;        //# Used in adjust_layout
 
-  MainWindow viewer(hdf5, start, end, semantic_tags) ; //TODO, annotator=wfdbAnnotation) ;
-  viewer.show() ;
+  m_signals = new SignalList(this, recording) ; // TODO , annotator) ;
+  m_annotations = new AnnotationList(this, recording, semantic_tags) ;
+  m_scroller = new Scroller(this, recording, start, duration) ;
 
-  return app.exec() ;
-#endif
+  m_ui->setupUi(this, m_signals, m_annotations, m_scroller) ;
+  setWindowTitle(((std::string)recording->uri()).c_str()) ;
+
+  // So can be passed between threads using signal/slot
+  qRegisterMetaType<bsml::data::TimeSeries::Ptr>("const bsml::data::TimeSeries::Ptr &") ;
+
+  // Close with the close-key shortcut.
+  QObject::connect(m_closekey, &QShortcut::activated, this, &Browser::close) ;
+
+  // Setup chart
+  m_ui->chartform->setTimeRange(start, duration) ;
+  ChartPlot *chart = m_ui->chartform->ui().chart ;
+  chart->setId(((std::string)m_recording->uri()).c_str()) ;
+  chart->setSemanticTags(semantic_tags) ;
+  QObject::connect(chart, &ChartPlot::exportRecording, this, &Browser::exportRecording) ;
+
+  // Connections with signal list
+  QObject::connect(m_signals,          &SignalList::add_event_trace,  chart, &ChartPlot::addEventTrace) ;
+  QObject::connect(m_signals,          &SignalList::add_signal_trace, chart, &ChartPlot::addSignalTrace) ;
+  QObject::connect(m_signals,          &SignalList::show_signals,     this,  &Browser::plot_signals) ;
+
+  QObject::connect(m_signals->model(), &SignalModel::rowVisible,     chart, &ChartPlot::setTraceVisible) ;
+  QObject::connect(m_signals->model(), &SignalModel::rowMoved,       chart, &ChartPlot::moveTrace) ;
+  QObject::connect(m_signals->ui().signallist, &SignalView::rowSelected, chart, &ChartPlot::plotSelected) ;
+
+  // Connections with annotation list
+  QObject::connect(m_annotations, &AnnotationList::annotationAdded,    chart,        &ChartPlot::addAnnotation) ;
+  QObject::connect(m_annotations, &AnnotationList::annotationDeleted, chart,         &ChartPlot::deleteAnnotation) ;
+  QObject::connect(m_annotations, &AnnotationList::set_marker,        chart,         &ChartPlot::setMarker) ;
+  QObject::connect(m_annotations, &AnnotationList::move_plot,         m_scroller,    &Scroller::move_plot) ;
+  QObject::connect(m_annotations, &AnnotationList::set_slider_value,  m_scroller,    &Scroller::set_slidervalue) ;
+  QObject::connect(m_annotations, &AnnotationList::show_slider_time,  m_scroller,    &Scroller::show_slidertime) ;
+  QObject::connect(m_annotations, &AnnotationList::recording_changed, this,          &Browser::set_modified) ;
+  QObject::connect(chart,         &ChartPlot::annotationAdded,        m_annotations, &AnnotationList::add_annotation) ;
+  QObject::connect(chart,         &ChartPlot::annotationModified,     m_annotations, &AnnotationList::modify_annotation) ;
+  QObject::connect(chart,         &ChartPlot::annotationDeleted,      m_annotations, &AnnotationList::delete_annotation) ;
+
+  // Connections with scroller
+  QObject::connect(m_scroller, &Scroller::set_plot_timerange, chart, &ChartPlot::setTimeRange) ;
+  QObject::connect(m_scroller, &Scroller::show_signals,       this,  &Browser::plot_signals) ;
+  QObject::connect(m_scroller, &Scroller::show_annotations,   m_annotations, &AnnotationList::show_annotations) ;
+
+  // Connect our signals
+  QObject::connect(this,       &Browser::reset_annotations, chart, &ChartPlot::resetAnnotations) ;
+  //#    resize_annotation_list.connect(m_annotations->annotations.resizeCells)
+  //#    show_slider_time.connect(m_scroller->show_slider_time)
+
+  // Everything connected, let's go...
+  m_signals->plot_signals(start, duration) ;
+  m_annotations->show_annotations() ;
+  m_scroller->setup_slider() ;
+
+  //    m_ui->chartform._user_zoom_index = m_ui->timezoom.count()
+  //    m_ui->chartform.ui.chart.zoomChart.connect(zoom_chart)
+
+  // setFocusPolicy(Qt::Qt.StrongFocus) # Needed to handle key events
   }
+
+
+Browser::~Browser()
+/*---------------*/
+{
+  stop_readers() ;
+  delete m_ui ;
+  }
+
+void Browser::stop_readers(void)
+/*----------------------------*/
+{
+  for (auto const &t : m_readers)
+    t->stop() ;
+  while (1) {
+    bool stopped = true ;
+    for (auto const &t : m_readers)
+      stopped = stopped && t->wait(10) ;
+    if (stopped) break ;
+    }
+  m_readers.clear() ;
+  }
+
+void Browser::plot_signals(bsml::Interval::Ptr interval)
+/*----------------------------------------------------*/
+{
+  stop_readers() ;
+  emit reset_annotations() ;
+  for (auto const &u : m_recording->get_signal_uris()) {   //# Why not only ones currently selected ????  std::cout << "STORED: " << hdf5.serialise_metadata(rdf::Graph::Format::TURTLE) << std::endl ;
+    auto s = m_recording->get_signal(u) ;
+// What is dynamic type of each signal?? Needs to be HDF5::Signal...
+    auto reader = new SignalReadThread(s, interval, m_ui->chartform->ui().chart) ;
+    m_readers.append(reader) ;
+    reader->start() ;
+    }
+  }
+
+
+void Browser::exportRecording(const QString &filename, float start, float end)
+/*--------------------------------------------------------------------------*/
+//# This is where we create a BSML file with current set of displayed signals
+//# along with events and annotations starting or ending in the interval, and
+//# provenance linking back to the original.
+{
+  // TODOprint('export', start, end) ;
+  }
+
+//def keyPressEvent(self, event):   ## Also need to do so in chart...
+/*-----------------------------    ## And send us hide/show messages or ke*/
+//  pass
+
+
+void Browser::set_modified(const rdf::URI &uri)
+/*-------------------------------------------*/
+{
+  if (m_recording->uri() == uri) m_modified = true ;
+  }
+
+void Browser::closeEvent(QCloseEvent *event)
+/*----------------------------------------*/
+{
+  if (m_modified) {
+    m_modified = false ;
+// Ask user if they want to save...
+// Have ^S for Save changes
+// Add a menu...
+// Multiple main windows, one per file...
+    m_recording->close() ;
+    }
+  QMainWindow::closeEvent(event) ;
+  }
+
